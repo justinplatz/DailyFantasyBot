@@ -1,0 +1,36 @@
+Alex Smith (9614896), Marshawn Lynch (9614961), Gore, Frank, Michael Crabtree (9614969), Antonio Brown (9614939), Tyreek Hill (9614907), Walker, Delanie, Cameron Brate (9614824), Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Doug Martin (9614806), Michael Crabtree (9614969), Antonio Brown (9614939), Tyreek Hill (9614907), Jared Cook (9614979), Cameron Brate (9614824), Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Gore, Frank, Michael Crabtree (9614969), Antonio Brown (9614939), Hilton, T.Y., Walker, Delanie, Jared Cook (9614979), Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Gore, Frank, Michael Crabtree (9614969), Antonio Brown (9614939), Tyreek Hill (9614907), Walker, Delanie, Jared Cook (9614979), Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Gore, Frank, Michael Crabtree (9614969), Antonio Brown (9614939), Hilton, T.Y., Walker, Delanie, Engram, Evan, Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Gore, Frank, Michael Crabtree (9614969), Antonio Brown (9614939), Tyreek Hill (9614907), Walker, Delanie, Engram, Evan, Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Doug Martin (9614806), Michael Crabtree (9614969), Antonio Brown (9614939), Tyreek Hill (9614907), Jared Cook (9614979), Engram, Evan, Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Gallman, Wayne, Michael Crabtree (9614969), Antonio Brown (9614939), Hilton, T.Y., Walker, Delanie, Cameron Brate (9614824), Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Gallman, Wayne, Michael Crabtree (9614969), Antonio Brown (9614939), Tyreek Hill (9614907), Walker, Delanie, Cameron Brate (9614824), Jaguars  (9614895)
+Alex Smith (9614896), Murray, DeMarco, Gore, Frank, Michael Crabtree (9614969), Antonio Brown (9614939), Tyreek Hill (9614907), Walker, Delanie, Cameron Brate (9614824), Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Gore, Frank, Thomas, Demaryius, Antonio Brown (9614939), Tyreek Hill (9614907), Walker, Delanie, Cameron Brate (9614824), Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Gallman, Wayne, Hilton, T.Y., Antonio Brown (9614939), Tyreek Hill (9614907), Walker, Delanie, Jared Cook (9614979), Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Gore, Frank, Thomas, Demaryius, Antonio Brown (9614939), Michael Crabtree (9614969), Walker, Delanie, Cameron Brate (9614824), Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Gallman, Wayne, Michael Crabtree (9614969), Antonio Brown (9614939), Hilton, T.Y., Walker, Delanie, Jared Cook (9614979), Jaguars  (9614895)
+Mariota, Marcus, Marshawn Lynch (9614961), Gore, Frank, Michael Crabtree (9614969), Antonio Brown (9614939), Hilton, T.Y., Walker, Delanie, Cameron Brate (9614824), Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Gallman, Wayne, Hilton, T.Y., Antonio Brown (9614939), Tyreek Hill (9614907), Walker, Delanie, Engram, Evan, Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Gore, Frank, Michael Crabtree (9614969), Antonio Brown (9614939), Sanders, Emmanuel, Walker, Delanie, Cameron Brate (9614824), Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Doug Martin (9614806), Michael Crabtree (9614969), Antonio Brown (9614939), Sanders, Emmanuel, Jared Cook (9614979), Cameron Brate (9614824), Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Gallman, Wayne, Michael Crabtree (9614969), Antonio Brown (9614939), Tyreek Hill (9614907), Walker, Delanie, Jared Cook (9614979), Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Gore, Frank, Martavis Bryant (9614941), Antonio Brown (9614939), Tyreek Hill (9614907), Travis Kelce (9614919), Cameron Brate (9614824), Jaguars  (9614895)
+Mariota, Marcus, Marshawn Lynch (9614961), Gore, Frank, Michael Crabtree (9614969), Antonio Brown (9614939), Tyreek Hill (9614907), Walker, Delanie, Cameron Brate (9614824), Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Gallman, Wayne, Michael Crabtree (9614969), Antonio Brown (9614939), Hilton, T.Y., Walker, Delanie, Engram, Evan, Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Gore, Frank, Martavis Bryant (9614941), Antonio Brown (9614939), Michael Crabtree (9614969), Travis Kelce (9614919), Cameron Brate (9614824), Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Gore, Frank, Marqise Lee (9614879), Antonio Brown (9614939), Hilton, T.Y., Travis Kelce (9614919), Cameron Brate (9614824), Jaguars  (9614895)
+Alex Smith (9614896), Marshawn Lynch (9614961), Gallman, Wayne, Michael Crabtree (9614969), Antonio Brown (9614939), Tyreek Hill (9614907), Walker, Delanie, Engram, Evan, Jaguars  (9614895)
+
+NAMES NOT FOUND: 
+Frank Gore
+Delanie Walker
+T.Y. Hilton
+Evan Engram
+Wayne Gallman
+DeMarco Murray
+Demaryius Thomas
+Marcus Mariota
+Emmanuel Sanders

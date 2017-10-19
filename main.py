@@ -12,8 +12,8 @@ def main():
     listOfFXs = []
     listOfDEs = []
     MAXCOST = 50000
-    MAXGEN = 100000
-
+    MAXGEN = 150000
+    POPSIZE = 25
     file = open('players.txt', 'r')
 
     players = readFileAndReturnPlayersDict(file)
@@ -23,20 +23,23 @@ def main():
         if(players[player]["pos"] == "QB"):
             listOfQBs.append(players[player])
 
-        if(players[player]["pos"] == "RB"):
+        elif(players[player]["pos"] == "RB"):
             listOfRBs.append(players[player])
             listOfFXs.append(players[player])
 
-        if(players[player]["pos"] == "WR"):
+        elif(players[player]["pos"] == "WR"):
             listOfWRs.append(players[player])
             listOfFXs.append(players[player])
 
-        if(players[player]["pos"] == "TE"):
+        elif(players[player]["pos"] == "TE"):
             listOfTEs.append(players[player])
             listOfFXs.append(players[player])
 
-        if(players[player]["pos"] == "D"):
+        elif(players[player]["pos"] == "D"):
             listOfDEs.append(players[player])
+
+        else:
+            print players[player]
 
     listOfQBs = sorted(listOfQBs, key=lambda k: k['posRank'])
     listOfRBs = sorted(listOfRBs, key=lambda k: k['posRank'])
@@ -45,18 +48,22 @@ def main():
     listOfFXs = sorted(listOfFXs, key=lambda k: k['posRank'])
     listOfDEs = sorted(listOfDEs, key=lambda k: k['posRank'])
 
-    population = generate20RandomLineups(deepcopy(listOfQBs),deepcopy(listOfRBs),deepcopy(listOfWRs),deepcopy(listOfTEs),deepcopy(listOfFXs),deepcopy(listOfDEs), MAXCOST)
+    population = generateRandomLineups(deepcopy(listOfQBs),deepcopy(listOfRBs),deepcopy(listOfWRs),deepcopy(listOfTEs),deepcopy(listOfFXs),deepcopy(listOfDEs), MAXCOST, POPSIZE)
     population = sorted(population, key=lambda k: k['score'])
-    highScore = population[20]["score"]
+    highScore = population[POPSIZE]["score"]
     lowScore = population[0]["score"]
     for i in range(0,MAXGEN,1):
 
         #############################
         #Used for printing high Score and iterations
-        if(highScore != population[20]["score"] or lowScore != population[0]["score"]):
-            highScore = population[20]["score"]
+        if(highScore != population[POPSIZE]["score"] or lowScore != population[0]["score"]):
+            highScore = population[POPSIZE]["score"]
             lowScore = population[0]["score"]
             print str(population[0]["score"]) + " - " + str(highScore)
+
+            makeCSVUsingPopulation(population)
+
+
         if(i % 1000 == 0):
             print "Iteration: ",i
         ##############################
@@ -66,7 +73,11 @@ def main():
         parent1lineup = parent1["lineup"]
 
         #select Random parent2 from population
-        parent2 = selectRandomFromList(deepcopy(population[:-10]))
+        parent2 = selectRandomFromList(deepcopy(population))
+
+        while parent1 == parent2:
+            parent2 = selectRandomFromList(deepcopy(population))
+
         parent2lineup = parent2["lineup"]
 
         ###############################
@@ -77,10 +88,8 @@ def main():
         if(randomInt < 2):
             ###############################
             # 1. Make child
-            #Pick rancom split number
-            splitInt = random.randint(0,9)
-            #Splice and combine lineups
-            childLineup = spliceAndCombineParents(parent1lineup, parent2lineup, splitInt)
+            # Splice and combine lineups
+            childLineup = spliceAndCombineParents(parent1lineup, parent2lineup)
 
             ###############################
             # 2. Check child
@@ -94,7 +103,7 @@ def main():
             if(childCost > MAXCOST):
                 continue
         else:
-            childLineup = population[20]["lineup"]
+            childLineup = population[POPSIZE]["lineup"]
             childCost = getCostFromLineup(deepcopy(childLineup))
 
         ###############################
@@ -120,14 +129,23 @@ def main():
            child["lineup"] = removeDuplicatesFromLineup(deepcopy(childLineup), listOfQBs,listOfRBs,listOfWRs,listOfTEs)
 
         #if our child was worse than our others, apply mutations
-        if(child["score"] < population[0]["score"]):
+        mutate = random.randint(0,1)
+        if(mutate == 0):
+
            randomInt = random.randint(0,4)
+
+           # 0,1 = 40% chance
            if(randomInt < 2):
                 #make a new random swap
                 child = swapPlayerForRandom(deepcopy(child["lineup"]),listOfQBs,listOfRBs,listOfWRs,listOfTEs,listOfDEs)
-           else:
+           # 3,4 = 40% chance
+           elif(randomInt == 3 or randomInt == 4):
+                #swap for a higher pos rank
                 child = swapForHigherPosRank(deepcopy(child["lineup"]),listOfQBs,listOfRBs,listOfWRs,listOfTEs,listOfDEs)
-
+           # 5 = 20% chance
+           else:
+                #swap for a higher pos rank
+                child = swapForLowerPosRank(deepcopy(child["lineup"]),listOfQBs,listOfRBs,listOfWRs,listOfTEs,listOfDEs)
 
            #checklineup for duplicate players
            childLineup = removeDuplicatesFromLineup(child["lineup"], listOfQBs,listOfRBs,listOfWRs,listOfTEs)
@@ -148,14 +166,6 @@ def main():
             population = sorted(deepcopy(population), key=lambda k: k['score'])
 
 
-    makeCSVUsingPopulation(population)
-    # for i in population:
-    #     print i["cost"]
-    #     print i["score"]
-    #     print i["lineup"]
-    #     print "**************************"
-
-
 def childLineupNotInPopulation(child, population):
 
     childPlayerMap = {}
@@ -173,14 +183,28 @@ def childLineupNotInPopulation(child, population):
     return True
 
 def makeCSVUsingPopulation(population):
+    outfile = open('output.txt', 'w')
+
+
     nameToIDMap = {}
-    file = open('dkIDs.csv', 'r')
+    file = open('DKSalaries.csv', 'r')
     for line in file:
-        arr = line.replace("\r","").replace("\n","").split(",")
+        arr = line.replace("\r","").replace("\n","").replace('\t','').split(",")
         nameToIDMap[arr[1]] = arr[0]
 
-    for i in population:
-        for p in i["lineup"]:
+
+
+    # for item in population:
+    #     outfile.write("%s\n" % item)
+
+    namesNotFound = []
+    #for i in population:
+    for i in range(len(population)-1, 0, -1):
+        line = ""
+        count = 0
+        lineup = population[i]["lineup"]
+        for p in lineup:
+            count += 1
             name = p["name"]
             nameArr = name.split(",")
 
@@ -191,15 +215,24 @@ def makeCSVUsingPopulation(population):
 
             if fullName in nameToIDMap:
                 name = nameToIDMap[fullName]
-            #else:
-                #print fullName
-                #continue
+            else:
+                if fullName not in namesNotFound:
+                    namesNotFound.append(fullName)
 
-            print name +",",
+            line += (name + ", " if count != len(lineup) else name)
 
-        print ""
+        outfile.write("%s\n" % line)
+
+    outfile.write("\n")
+    outfile.write("NAMES NOT FOUND: \n")
+    for i in namesNotFound:
+        outfile.write("%s\n" % i)
 
 
+
+
+
+#currently not being used
 def removeOverlyAppearingPlayersFromPopulation(population,listOfQBs,listOfRBs,listOfWRs,listOfTEs,listOfDEs, MAXCOST, players):
 
     done = True
@@ -222,7 +255,6 @@ def removeOverlyAppearingPlayersFromPopulation(population,listOfQBs,listOfRBs,li
 
 
     return population
-
 
 def swapForHigherPlayer(name,pos,val,listOfQBs,listOfRBs,listOfWRs,listOfTEs,listOfDEs):
 
@@ -298,16 +330,24 @@ def buildPlayerCountMap(population,players):
                 playerToLineupCountMap[name].append(i)
     return playerToLineupCountMap
 
-def spliceAndCombineParents(parent1, parent2, randomInt):
-    for i in range(0,randomInt,1):
-        posInt = random.randint(0,8)
-        parent1[posInt] = parent2[posInt]
-    return parent1
+def spliceAndCombineParents(parent1, parent2):
+
+    child = parent1
+
+    for i in range(0, len(parent1), 1):
+        parent = random.randint(0,1)
+
+        if parent == 0:
+            child[i] = parent1[i]
+        elif parent == 1:
+            child[i] = parent2[i]
+
+    return child
 
 
-def generate20RandomLineups(listOfQBs,listOfRBs,listOfWRs,listOfTEs,listOfFXs,listOfDEs, MAXCOST):
+def generateRandomLineups(listOfQBs,listOfRBs,listOfWRs,listOfTEs,listOfFXs,listOfDEs, MAXCOST, POPSIZE):
     population = []
-    for i in range(0,21,1):
+    for i in range(0,POPSIZE+1,1):
         child = generateRandomChild(listOfQBs,listOfRBs,listOfWRs,listOfTEs,listOfFXs,listOfDEs, MAXCOST)
         population.append(child)
     return population
@@ -378,6 +418,72 @@ def swapForHigherPosRank(lineup,listOfQBs,listOfRBs,listOfWRs,listOfTEs,listOfDE
 
     return child
 
+def swapForLowerPosRank(lineup,listOfQBs,listOfRBs,listOfWRs,listOfTEs,listOfDEs):
+    #Pick rancom split number
+    randomInt = random.randint(0,8)
+
+    #If we are swapping QB
+    if(lineup[randomInt]["pos"] == "QB"):
+       #Look at list of QBs
+       for i in range(0,len(listOfQBs),1):
+           #Find our current QB
+           if listOfQBs[i]["name"] == lineup[randomInt]["name"]:
+               #If he is not the worst QB
+               if i+1 < len(listOfQBs):
+                   #Set our QB to be a lower PosRank
+                   lineup[randomInt] = listOfQBs[i+1]
+
+    elif(lineup[randomInt]["pos"] == "RB"):
+       #Look at list of RBs
+       for i in range(0,len(listOfRBs),1):
+           #Find our current RB
+           if listOfRBs[i]["name"] == lineup[randomInt]["name"]:
+               #If he is not the worst RB
+               if i+1 < len(listOfRBs):
+                   #Set our RB to be a lower PosRank
+                   lineup[randomInt] = listOfRBs[i+1]
+
+    elif(lineup[randomInt]["pos"] == "WR"):
+       #Look at list of WRs
+       for i in range(0,len(listOfWRs),1):
+           #Find our current RB
+           if listOfWRs[i]["name"] == lineup[randomInt]["name"]:
+               #If he is not the worst WR
+               if i+1 < len(listOfWRs):
+                   #Set our WR to be a lower PosRank
+                   lineup[randomInt] = listOfWRs[i+1]
+
+    elif(lineup[randomInt]["pos"] == "TE"):
+       #Look at list of TE
+       for i in range(0,len(listOfTEs),1):
+           #Find our current TE
+           if listOfTEs[i]["name"] == lineup[randomInt]["name"]:
+               #If he is not the worst TE
+               if i+1 < len(listOfTEs):
+                   #Set our TE to be a lower PosRank
+                   lineup[randomInt] = listOfTEs[i+1]
+
+    elif(lineup[randomInt]["pos"] == "D"):
+       #Look at list of DE
+       for i in range(0,len(listOfDEs),1):
+           #Find our current DE
+           if listOfDEs[i]["name"] == lineup[randomInt]["name"]:
+               #If he is not the worst DE
+               if i+1 < len(listOfDEs):
+                   #Set our DE to be a lower PosRank
+                   lineup[randomInt] = listOfDEs[i+1]
+
+    lineup = removeDuplicatesFromLineup(lineup,listOfQBs, listOfRBs, listOfWRs, listOfTEs)
+    score = getScoreFromLineup(lineup)
+    cost = getCostFromLineup(lineup)
+
+    child = {}
+    child["cost"] = cost
+    child["lineup"] = lineup
+    child["score"] = score
+
+    return child
+
 def swapPlayerForRandom(lineup,listOfQBs,listOfRBs,listOfWRs,listOfTEs,listOfDEs):
     #Pick rancom split number
     randomInt = random.randint(0,8)
@@ -421,21 +527,35 @@ def generateRandomChild(listOfQBs,listOfRBs,listOfWRs,listOfTEs,listOfFXs,listOf
 
 def removeDuplicatesFromLineup(lineup, listOfQBs,listOfRBs,listOfWRs,listOfTEs):
     #Check for duplicate RBS
-    if(lineup[1] == lineup[2] or lineup[1] == lineup[7]):
+    while(lineup[1] == lineup[2] or
+          lineup[1] == lineup[7] or
+          lineup[2] == lineup[7]):
+
         lineup[1] = selectRandomFromList(listOfRBs)
-    elif(lineup[2] == lineup[7]):
         lineup[2] = selectRandomFromList(listOfRBs)
 
+    # while(lineup[2] == lineup[7] or lineup[2] == lineup[1]):
+    #     lineup[2] = selectRandomFromList(listOfRBs)
+
     #Check for duplicate WRs
-    if(lineup[3] == lineup[4] or lineup[3] == lineup[5] or lineup[3] == lineup[7]):
+    while(lineup[3] == lineup[4] or
+          lineup[3] == lineup[5] or
+          lineup[3] == lineup[7] or
+          lineup[4] == lineup[5] or
+          lineup[4] == lineup[7] or
+          lineup[5] == lineup[7]):
+
         lineup[3] = selectRandomFromList(listOfWRs)
-    if(lineup[4] == lineup[5] or lineup[4] == lineup[7]):
         lineup[4] = selectRandomFromList(listOfWRs)
-    if(lineup[5] == lineup[7]):
         lineup[5] = selectRandomFromList(listOfWRs)
 
+    # while(lineup[4] == lineup[5] or lineup[4] == lineup[7] or lineup[3] == lineup[4]):
+    #     lineup[4] = selectRandomFromList(listOfWRs)
+    # while(lineup[5] == lineup[7]):
+    #     lineup[5] = selectRandomFromList(listOfWRs)
+
     #check fpr duplicate TEs
-    if(lineup[6] == lineup[7]):
+    while(lineup[6] == lineup[7]):
         lineup[6] = selectRandomFromList(listOfTEs)
 
     return lineup
@@ -464,10 +584,11 @@ def getScoreFromLineup(lineup):
     score = 0
     for player in lineup:
         try:
-            score += (1.0)*player["points"] + (.25)*player["ceil"] + (.25)*player["floor"]
+            score += (1.0)*player["points"] + (.05)*player["ceil"] + (.25)*player["floor"]
         except:
             score += 0
     return score
+
 def getCostFromLineup(lineup):
     cost = 0
     for player in lineup:
@@ -505,12 +626,20 @@ def readFileAndReturnPlayersDict(file):
         salary = arr[6]
         players[name] = {}
         players[name]["name"] = name
-        players[name]["pos"] = pos
         players[name]["team"] = team
-        if(players[name]["team"] == 'gb' or players[name]["team"] == 'chi' or players[name]["team"] == 'dal' or players[name]["team"] == 'car' or players[name]["team"] == 'nyg' or players[name]["team"] == 'la'):
+        players[name]["salary"] = float(salary)
+        players[name]["pos"] = pos
+
+
+        #if(pos == 'D'):
+            #players[name]["pos"] = _switchDefenseCityForName(name)
+        #else:
+
+
+        if(_ignoreTeamsNotPlayingDuringTimeWindow(players[name]["team"])):
             del players[name]
             continue
-        players[name]["salary"] = float(salary)
+
         if(name in ffaPlayers):
             players[name]["points"] = float(ffaPlayers[name]["points"])
             players[name]["posRank"] = ffaPlayers[name]["posRank"]
@@ -529,16 +658,17 @@ def readFFSCSV():
   list = []
   for line in file:
       arr = line.replace("\r","").replace("\n","").split(",")
-      #0-Player (Team)
-      #1-Pos
-      #2-Points
-      #3-Ceiling
-      #4-Floor
-      #5-Pos Rank
+      #0-Player
+      #1-Team
+      #2-Pos
+      #3-Points
+      #4-Ceiling
+      #5-Floor
+      #6-Pos Rank
       firstCol = arr[0].split(" ")
       firstCol.pop()
       col = ""
-      if(arr[1] != "DST"):
+      if(arr[2] != "DST"):
           for i in firstCol:
               col += i + " "
           if(" " in arr[0]):
@@ -551,11 +681,151 @@ def readFFSCSV():
           list.append(arr)
       ffaPlayers[arr[0]] = {}
       ffaPlayers[arr[0]]["name"] = arr[0]
-      ffaPlayers[arr[0]]["pos"] = arr[1]
-      ffaPlayers[arr[0]]["points"] = float(arr[2])
-      ffaPlayers[arr[0]]["ceil"] = float(arr[3])
-      ffaPlayers[arr[0]]["floor"] = float(arr[4])
-      ffaPlayers[arr[0]]["posRank"] = int(arr[5])
+      ffaPlayers[arr[0]]["team"] = arr[1]
+      ffaPlayers[arr[0]]["pos"] = arr[2]
+      ffaPlayers[arr[0]]["points"] = float(arr[3])
+      ffaPlayers[arr[0]]["ceil"] = float(arr[4])
+      ffaPlayers[arr[0]]["floor"] = float(arr[5])
+      ffaPlayers[arr[0]]["posRank"] = int(arr[6])
 
   return ffaPlayers
+
+def _ignoreTeamsNotPlayingDuringTimeWindow(city):
+    if(city == 'phi'):
+        return True
+    elif(city == 'car'):
+        return True
+    elif(city == 'chi'):
+        return True
+    elif(city == 'bal'):
+        return True
+    elif(city == 'cle'):
+        return True
+    elif(city == 'hou'):
+        return True
+    elif(city == 'gb'):
+        return True
+    elif(city == 'min'):
+        return True
+    elif(city == 'det'):
+        return True
+    elif(city == 'no'):
+        return True
+    elif(city == 'mia'):
+        return True
+    elif(city == 'atl'):
+        return True
+    elif(city == 'ne'):
+        return True
+    elif(city == 'nyj'):
+        return True
+    elif(city == 'sfo'):
+        return True
+    elif(city == 'was'):
+        return True
+    else:
+        return False
+
+def _switchDefenseCityForName(city):
+    if(city == 'Jacksonville'):
+        return 'Jaguars'
+
+    elif(city == 'Detroit'):
+        return 'Lions'
+
+    elif(city == 'Baltimore'):
+        return 'Ravens'
+
+    elif(city == 'Los Angeles'):
+        return 'Rams'
+
+    elif(city == 'Washington'):
+        return 'Redskins'
+
+    elif(city == 'Pittsburgh'):
+        return 'Steelers'
+
+    elif(city == 'Philadelphia'):
+        return 'Eagles'
+
+    elif(city == 'Buffalo'):
+        return 'Bills'
+
+    elif(city == 'Kansas City'):
+        return 'Chiefs'
+
+    elif(city == 'Carolina'):
+        return 'Panthers'
+
+    elif(city == 'Cincinnati'):
+        return 'Bengals'
+
+    elif(city == 'Denver'):
+        return 'Broncos'
+
+    elif(city == 'Atlanta'):
+        return 'Falcons'
+
+    elif(city == 'Dallas'):
+        return 'Cowboys'
+
+    elif(city == 'Arizona'):
+        return 'Cardinals'
+
+    elif(city == 'Denver'):
+        return 'Cowboys'
+
+    elif(city == 'Tampa Bay'):
+        return 'Buccaneers'
+
+    elif(city == 'Houston'):
+        return 'Texans'
+
+    elif(city == 'Green Bay'):
+        return 'Packers'
+
+    elif(city == 'Chicago'):
+        return 'Bears'
+
+    elif(city == 'Oakland'):
+        return 'Raiders'
+
+    elif(city == 'San Diego'):
+        return 'Chargers'
+
+    elif(city == 'Indianapolis'):
+        return 'Colts'
+
+    elif(city == 'New York J'):
+        return 'Jets'
+
+    elif(city == 'Seattle'):
+        return 'Seahawks'
+
+    elif(city == 'Cleveland'):
+        return 'Browns'
+
+    elif(city == 'Minnesota'):
+        return 'Vikings'
+
+    elif(city == 'New Orleans'):
+        return 'Saints'
+
+    elif(city == 'New York G'):
+        return 'Giants'
+
+    elif(city == 'Tennessee'):
+        return 'Titans'
+
+    elif(city == 'San Francisco'):
+        return '49ers'
+
+    elif(city == 'New England'):
+        return 'Patriots'
+
+    elif(city == 'Miami'):
+        return 'Dolphins'
+    else:
+        print city
+        return
 main()

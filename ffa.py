@@ -5,12 +5,15 @@ def readFFSCSV():
   list = []
   for line in file:
       arr = line.replace("\r","").replace("\n","").split(",")
-      #0-Player (Team)
-      #1-Pos
-      #2-Points
-      #3-Ceiling
-      #4-Floor
-      #5-Pos Rank
+
+      #0-Player
+      #1-Team
+      #2-Pos
+      #3-Points
+      #4-Ceiling
+      #5-Floor
+      #6-Pos Rank
+
       firstCol = arr[0].split(" ")
       firstCol.pop()
       col = ""
@@ -24,11 +27,12 @@ def readFFSCSV():
           list.append(arr)
       ffaPlayers[arr[0]] = {}
       ffaPlayers[arr[0]]["name"] = arr[0]
-      ffaPlayers[arr[0]]["pos"] = arr[1]
-      ffaPlayers[arr[0]]["points"] = arr[2]
-      ffaPlayers[arr[0]]["ceil"] = arr[3]
-      ffaPlayers[arr[0]]["floor"] = arr[4]
-      ffaPlayers[arr[0]]["posRank"] = arr[5]
+      ffaPlayers[arr[0]]["team"] = arr[1]
+      ffaPlayers[arr[0]]["pos"] = arr[2]
+      ffaPlayers[arr[0]]["points"] = arr[3]
+      ffaPlayers[arr[0]]["ceil"] = arr[4]
+      ffaPlayers[arr[0]]["floor"] = arr[5]
+      ffaPlayers[arr[0]]["posRank"] = arr[6]
 
   for i in ffaPlayers:
       print ffaPlayers[i]
