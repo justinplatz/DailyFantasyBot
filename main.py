@@ -201,7 +201,7 @@ def makeCSVUsingPopulation(population):
 
 
     nameToIDMap = {}
-    file = open('DKSalaries.csv', 'r')
+    file = open('DKIds.csv', 'r')
     for line in file:
         arr = line.replace("\r","").replace("\n","").replace('\t','').split(",")
         if(arr[1].endswith(" ")):

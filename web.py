@@ -8,7 +8,7 @@ def scrapeDKIDs():
     soup = BeautifulSoup(page,"lxml")
 
     arr = soup.text.split(",,,,,,,,,,")
-    f = open('DKSalaries.csv', 'w')
+    f = open('DKIds.csv', 'w')
     for i in arr:
         if(i.count("@") > 0):
             player_arr = i.split(",")
