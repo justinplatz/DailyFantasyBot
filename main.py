@@ -19,7 +19,7 @@ def main():
     listOfFXs = []
     listOfDEs = []
 
-    file = open('players.txt', 'r')
+    file = open('input/players.txt', 'r')
 
     players = readFileAndReturnPlayersDict(file)
 
@@ -197,11 +197,11 @@ def childLineupNotInPopulation(child, population):
     return True
 
 def makeCSVUsingPopulation(population):
-    outfile = open('output.txt', 'w')
+    outfile = open('output/output.txt', 'w')
 
 
     nameToIDMap = {}
-    file = open('DKIds.csv', 'r')
+    file = open('input/DKIds.csv', 'r')
     for line in file:
         arr = line.replace("\r","").replace("\n","").replace('\t','').split(",")
         if(arr[1].endswith(" ")):
@@ -667,7 +667,7 @@ def readFileAndReturnPlayersDict(file):
     return players
 
 def readFFSCSV():
-  file = open('FFA.csv', 'r')
+  file = open('input/FFA.csv', 'r')
 
   ffaPlayers = {}
   list = []

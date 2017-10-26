@@ -8,7 +8,7 @@ def scrapeDKIDs():
     soup = BeautifulSoup(page,"lxml")
 
     arr = soup.text.split(",,,,,,,,,,")
-    f = open('DKIds.csv', 'w')
+    f = open('input/DKIds.csv', 'w')
     for i in arr:
         if(i.count("@") > 0):
             player_arr = i.split(",")
@@ -27,7 +27,7 @@ def scrapePlayersFile():
 
     for i in soup.find_all('p'):
         if i.text.count(";") > 3:
-            f = open('players.txt', 'w')
+            f = open('input/players.txt', 'w')
             arr = i.text.split("\n")
             arr.pop(0)
             for line in arr:
