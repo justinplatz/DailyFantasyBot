@@ -1,9 +1,16 @@
 import random
 from copy import deepcopy
+import math
+from web import scrapePlayersFile, scrapeDKIDs
 
-
+MAXCOST = 50000
+MAXGEN = 150000
+POPSIZE = 100
 
 def main():
+
+    scrapePlayersFile()
+    scrapeDKIDs()
 
     listOfQBs = []
     listOfRBs = []
@@ -11,9 +18,7 @@ def main():
     listOfTEs = []
     listOfFXs = []
     listOfDEs = []
-    MAXCOST = 50000
-    MAXGEN = 150000
-    POPSIZE = 25
+
     file = open('players.txt', 'r')
 
     players = readFileAndReturnPlayersDict(file)
@@ -57,9 +62,17 @@ def main():
         #############################
         #Used for printing high Score and iterations
         if(highScore != population[POPSIZE]["score"] or lowScore != population[0]["score"]):
+            up = " ---"
+            if highScore != population[POPSIZE]["score"]:
+                up = " ^^^"
+
+            down = "--- "
+            if lowScore != population[0]["score"]:
+                down = "^^^ "
+
             highScore = population[POPSIZE]["score"]
             lowScore = population[0]["score"]
-            print str(population[0]["score"]) + " - " + str(highScore)
+            print down + str(population[0]["score"]) + " - " + str(highScore) + up
 
             makeCSVUsingPopulation(population)
 
@@ -68,12 +81,13 @@ def main():
             print "Iteration: ",i
         ##############################
 
+        cutoff = int(math.ceil(POPSIZE * .1))
         #Select Random parent1 from population
-        parent1 = selectRandomFromList(deepcopy(population))
+        parent1 = selectRandomFromList(deepcopy(population[:cutoff]))
         parent1lineup = parent1["lineup"]
 
         #select Random parent2 from population
-        parent2 = selectRandomFromList(deepcopy(population))
+        parent2 = selectRandomFromList(deepcopy(population[:-cutoff]))
 
         while parent1 == parent2:
             parent2 = selectRandomFromList(deepcopy(population))
@@ -82,10 +96,10 @@ def main():
 
         ###############################
         # Create Child
-        # - Either Splice and combine parents to form child
-        # - Or use highest ranked lineup as child
-        randomInt = random.randint(0,4)
-        if(randomInt < 2):
+        # - Either Splice and combine parents to form child (90%)
+        # - Or use highest ranked lineup as child (10%)
+        randomInt = random.randint(0,9)
+        if(randomInt < 9):
             ###############################
             # 1. Make child
             # Splice and combine lineups
@@ -190,6 +204,8 @@ def makeCSVUsingPopulation(population):
     file = open('DKSalaries.csv', 'r')
     for line in file:
         arr = line.replace("\r","").replace("\n","").replace('\t','').split(",")
+        if(arr[1].endswith(" ")):
+            arr[1] = arr[1][:-1]
         nameToIDMap[arr[1]] = arr[0]
 
 
@@ -224,6 +240,12 @@ def makeCSVUsingPopulation(population):
         outfile.write("%s\n" % line)
 
     outfile.write("\n")
+
+    outfile.write("RANGE: \n")
+    string = str(population[0]["score"]) + " - " + str(population[POPSIZE]["score"])
+    outfile.write("%s\n" % string)
+    outfile.write("\n")
+
     outfile.write("NAMES NOT FOUND: \n")
     for i in namesNotFound:
         outfile.write("%s\n" % i)
@@ -630,12 +652,6 @@ def readFileAndReturnPlayersDict(file):
         players[name]["salary"] = float(salary)
         players[name]["pos"] = pos
 
-
-        #if(pos == 'D'):
-            #players[name]["pos"] = _switchDefenseCityForName(name)
-        #else:
-
-
         if(_ignoreTeamsNotPlayingDuringTimeWindow(players[name]["team"])):
             del players[name]
             continue
@@ -645,7 +661,6 @@ def readFileAndReturnPlayersDict(file):
             players[name]["posRank"] = ffaPlayers[name]["posRank"]
             players[name]["ceil"] = ffaPlayers[name]["ceil"]
             players[name]["floor"] = ffaPlayers[name]["floor"]
-
         else:
             del players[name]
 
@@ -691,141 +706,35 @@ def readFFSCSV():
   return ffaPlayers
 
 def _ignoreTeamsNotPlayingDuringTimeWindow(city):
-    if(city == 'phi'):
-        return True
-    elif(city == 'car'):
-        return True
-    elif(city == 'chi'):
+    if(city == 'mia'):
         return True
     elif(city == 'bal'):
         return True
+    elif(city == 'min'):
+        return True
     elif(city == 'cle'):
         return True
-    elif(city == 'hou'):
-        return True
-    elif(city == 'gb'):
-        return True
-    elif(city == 'min'):
+    elif(city == 'pit'):
         return True
     elif(city == 'det'):
         return True
-    elif(city == 'no'):
+    elif(city == 'den'):
         return True
-    elif(city == 'mia'):
+    elif(city == 'kan'):
         return True
-    elif(city == 'atl'):
+    elif(city == 'ari'):
         return True
-    elif(city == 'ne'):
+    elif(city == 'gb'):
         return True
-    elif(city == 'nyj'):
+    elif(city == 'jac'):
         return True
-    elif(city == 'sfo'):
+    elif(city == 'lar'):
         return True
-    elif(city == 'was'):
+    elif(city == 'nyg'):
+        return True
+    elif(city == 'ten'):
         return True
     else:
         return False
 
-def _switchDefenseCityForName(city):
-    if(city == 'Jacksonville'):
-        return 'Jaguars'
-
-    elif(city == 'Detroit'):
-        return 'Lions'
-
-    elif(city == 'Baltimore'):
-        return 'Ravens'
-
-    elif(city == 'Los Angeles'):
-        return 'Rams'
-
-    elif(city == 'Washington'):
-        return 'Redskins'
-
-    elif(city == 'Pittsburgh'):
-        return 'Steelers'
-
-    elif(city == 'Philadelphia'):
-        return 'Eagles'
-
-    elif(city == 'Buffalo'):
-        return 'Bills'
-
-    elif(city == 'Kansas City'):
-        return 'Chiefs'
-
-    elif(city == 'Carolina'):
-        return 'Panthers'
-
-    elif(city == 'Cincinnati'):
-        return 'Bengals'
-
-    elif(city == 'Denver'):
-        return 'Broncos'
-
-    elif(city == 'Atlanta'):
-        return 'Falcons'
-
-    elif(city == 'Dallas'):
-        return 'Cowboys'
-
-    elif(city == 'Arizona'):
-        return 'Cardinals'
-
-    elif(city == 'Denver'):
-        return 'Cowboys'
-
-    elif(city == 'Tampa Bay'):
-        return 'Buccaneers'
-
-    elif(city == 'Houston'):
-        return 'Texans'
-
-    elif(city == 'Green Bay'):
-        return 'Packers'
-
-    elif(city == 'Chicago'):
-        return 'Bears'
-
-    elif(city == 'Oakland'):
-        return 'Raiders'
-
-    elif(city == 'San Diego'):
-        return 'Chargers'
-
-    elif(city == 'Indianapolis'):
-        return 'Colts'
-
-    elif(city == 'New York J'):
-        return 'Jets'
-
-    elif(city == 'Seattle'):
-        return 'Seahawks'
-
-    elif(city == 'Cleveland'):
-        return 'Browns'
-
-    elif(city == 'Minnesota'):
-        return 'Vikings'
-
-    elif(city == 'New Orleans'):
-        return 'Saints'
-
-    elif(city == 'New York G'):
-        return 'Giants'
-
-    elif(city == 'Tennessee'):
-        return 'Titans'
-
-    elif(city == 'San Francisco'):
-        return '49ers'
-
-    elif(city == 'New England'):
-        return 'Patriots'
-
-    elif(city == 'Miami'):
-        return 'Dolphins'
-    else:
-        print city
-        return
 main()
