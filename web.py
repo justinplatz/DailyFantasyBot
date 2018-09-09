@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import urllib2, sys
 
 def scrapeDKIDs():
-    url = "https://www.draftkings.com/bulklineup/getdraftablecsv?draftGroupId=16004"
+    url = "https://www.draftkings.com/bulklineup/getdraftablecsv?draftGroupId=20546"
     page = urllib2.urlopen(url).read()
     soup = BeautifulSoup(page,"lxml")
 
@@ -16,11 +16,10 @@ def scrapeDKIDs():
             f.write(line + '\n')
 
 
-scrapeDKIDs()
+#scrapeDKIDs()
 
 def scrapePlayersFile():
     url = "http://rotoguru1.com/cgi-bin/fstats.cgi?pos=0&sort=4&game=p&colA=0&daypt=0&xavg=0&inact=0&maxprc=99999&outcsv=1"
-
     page = urllib2.urlopen(url).read()
     soup = BeautifulSoup(page,"lxml")
 

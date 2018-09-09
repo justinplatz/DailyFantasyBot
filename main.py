@@ -4,7 +4,7 @@ import math
 from web import scrapePlayersFile, scrapeDKIDs
 
 MAXCOST = 50000
-MAXGEN = 150000
+MAXGEN = 250000
 POPSIZE = 100
 
 def main():
@@ -706,34 +706,22 @@ def readFFSCSV():
   return ffaPlayers
 
 def _ignoreTeamsNotPlayingDuringTimeWindow(city):
-    if(city == 'mia'):
+
+    if(city == 'phi'):
         return True
-    elif(city == 'bal'):
+    elif(city == 'atl'):
         return True
-    elif(city == 'min'):
-        return True
-    elif(city == 'cle'):
-        return True
-    elif(city == 'pit'):
+
+    elif(city == 'nyj'):
         return True
     elif(city == 'det'):
         return True
-    elif(city == 'den'):
-        return True
-    elif(city == 'kan'):
-        return True
-    elif(city == 'ari'):
-        return True
-    elif(city == 'gb'):
-        return True
-    elif(city == 'jac'):
-        return True
+
     elif(city == 'lar'):
         return True
-    elif(city == 'nyg'):
+    elif(city == 'oak'):
         return True
-    elif(city == 'ten'):
-        return True
+
     else:
         return False
 
