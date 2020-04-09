@@ -1,142 +1,49 @@
-import urllib2
 from bs4 import BeautifulSoup
-import urllib2, sys
+import urllib.request
+import json
+import requests
+import pandas as pd
 
-def scrapeDKIDs():
-    url = "https://www.draftkings.com/bulklineup/getdraftablecsv?draftGroupId=20546"
-    page = urllib2.urlopen(url).read()
-    soup = BeautifulSoup(page,"lxml")
+from config import draft_kings_url, projected_ownership_url
 
+def scrape_dk_ids_to_df():
+    page = urllib.request.urlopen(draft_kings_url).read()
+    soup = BeautifulSoup(page, "lxml")
+
+
+    valid_pos = ["QB", "RB", "WR", "TE", "DST", "K"]
     arr = soup.text.split(",,,,,,,,,,")
-    f = open('input/DKIds.csv', 'w')
+
+    players = []
     for i in arr:
         if(i.count("@") > 0):
             player_arr = i.split(",")
-            line = player_arr[1] + "," + player_arr[2]
-            f.write(line + '\n')
+            position = player_arr[0]
+            if position not in valid_pos:
+                continue
+
+            name = player_arr[2].strip()
+            id = player_arr[3]
+            salary = int(player_arr[5])
+            team = player_arr[7]
+
+            player = [name, id, position, salary, team]
+            players.append(player)
+
+    df = pd.DataFrame(players, columns=['Name', 'ID', 'Position', 'Salary', 'Team'])
+    return df
 
 
-#scrapeDKIDs()
+def get_projected_ownership_to_df():
 
-def scrapePlayersFile():
-    url = "http://rotoguru1.com/cgi-bin/fstats.cgi?pos=0&sort=4&game=p&colA=0&daypt=0&xavg=0&inact=0&maxprc=99999&outcsv=1"
-    page = urllib2.urlopen(url).read()
-    soup = BeautifulSoup(page,"lxml")
+    r = requests.get(projected_ownership_url)
+    arr = json.loads(r.content)
 
+    df = pd.DataFrame(arr, columns=['Ceiling', 'DKPts', 'Floor', 'Game', 'Id',
+                                    'ImpPts', 'MaxExp', 'MinExp', 'Name', 'OU',
+                                    'Opp', 'Position', 'ProjOwn', 'Salary', 'Spread',
+                                    'TeamAbbrev', 'TimeRank', 'Val', 'Venue'])
+    return df
 
-    for i in soup.find_all('p'):
-        if i.text.count(";") > 3:
-            f = open('input/players.txt', 'w')
-            arr = i.text.split("\n")
-            arr.pop(0)
-            for line in arr:
-                if line.count(";") > 3:
-                    if "D;" in line:
-                        name = line.split(";")[2]
-                        teamname = _switchDefenseCityForName(name)
-                        line = line.replace(name, teamname)
-                    f.write(line + '\n')
-            f.close()
-
-def _switchDefenseCityForName(city):
-    if(city == 'Jacksonville'):
-        return 'Jaguars'
-
-    elif(city == 'Detroit'):
-        return 'Lions'
-
-    elif(city == 'Baltimore'):
-        return 'Ravens'
-
-    elif(city == 'LA Rams'):
-        return 'Rams'
-
-    elif(city == 'Washington'):
-        return 'Redskins'
-
-    elif(city == 'Pittsburgh'):
-        return 'Steelers'
-
-    elif(city == 'Philadelphia'):
-        return 'Eagles'
-
-    elif(city == 'Buffalo'):
-        return 'Bills'
-
-    elif(city == 'Kansas City'):
-        return 'Chiefs'
-
-    elif(city == 'Carolina'):
-        return 'Panthers'
-
-    elif(city == 'Cincinnati'):
-        return 'Bengals'
-
-    elif(city == 'Denver'):
-        return 'Broncos'
-
-    elif(city == 'Atlanta'):
-        return 'Falcons'
-
-    elif(city == 'Dallas'):
-        return 'Cowboys'
-
-    elif(city == 'Arizona'):
-        return 'Cardinals'
-
-    elif(city == 'Denver'):
-        return 'Cowboys'
-
-    elif(city == 'Tampa Bay'):
-        return 'Buccaneers'
-
-    elif(city == 'Houston'):
-        return 'Texans'
-
-    elif(city == 'Green Bay'):
-        return 'Packers'
-
-    elif(city == 'Chicago'):
-        return 'Bears'
-
-    elif(city == 'Oakland'):
-        return 'Raiders'
-
-    elif(city == 'LA Chargers'):
-        return 'Chargers'
-
-    elif(city == 'Indianapolis'):
-        return 'Colts'
-
-    elif(city == 'New York J'):
-        return 'Jets'
-
-    elif(city == 'Seattle'):
-        return 'Seahawks'
-
-    elif(city == 'Cleveland'):
-        return 'Browns'
-
-    elif(city == 'Minnesota'):
-        return 'Vikings'
-
-    elif(city == 'New Orleans'):
-        return 'Saints'
-
-    elif(city == 'New York G'):
-        return 'Giants'
-
-    elif(city == 'Tennessee'):
-        return 'Titans'
-
-    elif(city == 'San Francisco'):
-        return '49ers'
-
-    elif(city == 'New England'):
-        return 'Patriots'
-
-    elif(city == 'Miami'):
-        return 'Dolphins'
-    else:
-        print city
-        return
+if __name__ == '__main__':
+    get_projected_ownership_to_df()
